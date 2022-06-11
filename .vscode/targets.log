@@ -10,7 +10,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 make: *** No rule to make target `all'.  Stop.
 
 
-# Make data base, printed on Tue May 24 23:58:59 2022
+# Make data base, printed on Sat Jun 11 17:48:19 2022
 
 # Variables
 
@@ -48,15 +48,15 @@ __CFBundleIdentifier = com.microsoft.VSCode
 # environment
 INFOPATH = /opt/homebrew/share/info:
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/h_/spnl191s2sx299lvqc5f4_vm0000gn/T/vscode-ipc-49b51d42-9773-471d-9923-cd23444d579f.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/h_/spnl191s2sx299lvqc5f4_vm0000gn/T/vscode-ipc-7f2f6178-1327-453d-a8f8-93fa394c7d73.sock
 # environment
 VSCODE_CWD = /Users/dongqishen/GitSpace/Kaleidoscope
 # environment
-PATH = /Users/dongqishen/.local/bin:/Users/dongqishen/Dependency/llvm-10.0.0-m1/bin:/opt/homebrew/opt/ruby/bin:/Users/dongqishen/miniconda3/condabin:/Library/Frameworks/Python.framework/Versions/3.9/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/opt/X11/bin:/Library/Apple/usr/bin
+PATH = /opt/homebrew/opt/grep/libexec/gnubin:/Users/dongqishen/.local/bin:/Users/dongqishen/Dependency/llvm-10.0.0-m1/bin:/opt/homebrew/opt/ruby/bin:/Users/dongqishen/miniconda3/condabin:/Library/Frameworks/Python.framework/Versions/3.9/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/opt/X11/bin:/Library/Apple/usr/bin
 # environment
 LSCOLORS = Gxfxcxdxbxegedabagacad
 # environment
-LaunchInstanceID = 9C0A77EC-D547-4A55-AA07-F80B78C3AA17
+LaunchInstanceID = BE02629B-2CFD-4FC3-8AEE-B0332EAFD800
 # environment
 VSCODE_LOG_STACK = false
 # environment
@@ -64,11 +64,11 @@ ELECTRON_RUN_AS_NODE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.TlfwwmLHIT/Listeners
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.L7tlEREpg7/Listeners
 # automatic
 %F = $(notdir $%)
 # environment
-DISPLAY = /private/tmp/com.apple.launchd.hjR7Tadk2m/org.xquartz:0
+DISPLAY = /private/tmp/com.apple.launchd.h4TPl2BJKV/org.xquartz:0
 # environment
 CONDA_EXE = /Users/dongqishen/miniconda3/bin/conda
 # environment
@@ -90,7 +90,7 @@ MAKEFILEPATH := /Applications/Xcode.app/Contents/Developer/Makefiles
 # environment
 VSCODE_CLI = 1
 # environment
-VSCODE_CODE_CACHE_PATH = /Users/dongqishen/Library/Application Support/Code/CachedData/c3511e6c69bb39013c4a4b7b9566ec1ca73fc4d5
+VSCODE_CODE_CACHE_PATH = /Users/dongqishen/Library/Application Support/Code/CachedData/4af164ea3a06f701fe3e89a2bcbb421d2026b68f
 # environment
 LOGNAME = dongqishen
 # environment
@@ -112,7 +112,7 @@ LC_TERMINAL = iTerm2
 # environment
 SHLVL = 3
 # environment
-TERM_SESSION_ID = w0t0p0:F0B97CEE-F3B4-4BD0-A9CF-E509C3326B62
+TERM_SESSION_ID = w0t0p0:5FC3D572-D1FF-4D39-96E4-70F7847513F9
 # default
 MAKE_VERSION := 3.81
 # environment
@@ -140,7 +140,7 @@ TMPDIR = /var/folders/h_/spnl191s2sx299lvqc5f4_vm0000gn/T/
 # automatic
 *F = $(notdir $*)
 # environment
-VSCODE_IPC_HOOK = /Users/dongqishen/Library/Application Support/Code/1.67.2-main.sock
+VSCODE_IPC_HOOK = /Users/dongqishen/Library/Application Support/Code/1.68.0-main.sock
 # makefile
 MAKEFLAGS = Rrqp
 # environment
@@ -150,10 +150,7 @@ MFLAGS = -Rrqp
 # environment
 TERM_PROGRAM_VERSION = 3.4.8
 # environment
-HOMEBREW_SHELLENV_PREFIX = /opt/homebrew
- 
-# environment
-XPC_SERVICE_NAME = application.com.microsoft.VSCode.38690414.38690420.749FB090-0599-453E-9DE2-968D565C57E6
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.3583538.3583544.9477B875-64BB-47B6-AA13-FA23BD73931F
 # environment
 LC_TERMINAL_VERSION = 3.4.8
 # environment
@@ -163,7 +160,7 @@ HOMEBREW_PREFIX = /opt/homebrew
 # automatic
 +F = $(notdir $+)
 # environment
-ITERM_SESSION_ID = w0t0p0:F0B97CEE-F3B4-4BD0-A9CF-E509C3326B62
+ITERM_SESSION_ID = w0t0p0:5FC3D572-D1FF-4D39-96E4-70F7847513F9
 # environment
 HOMEBREW_REPOSITORY = /opt/homebrew
 # environment
@@ -187,7 +184,7 @@ LC_ALL = C
 # environment
 CONDA_PYTHON_EXE = /Users/dongqishen/miniconda3/bin/python
 # environment
-SECURITYSESSIONID = 186b2
+SECURITYSESSIONID = 186b4
 # automatic
 ^F = $(notdir $^)
 # default
@@ -203,11 +200,11 @@ LANG = C
 # environment
 TERM = xterm-256color
 # environment
-VSCODE_PID = 18802
+VSCODE_PID = 1690
 # environment
 _CE_CONDA = 
 # variable set hash-table stats:
-# Load=95/1024=9%, Rehash=0, Collisions=5/116=4%
+# Load=94/1024=9%, Rehash=0, Collisions=5/115=4%
 
 # Pattern-specific Variable Values
 
@@ -215,9 +212,9 @@ _CE_CONDA =
 
 # Directories
 
-# . (device 16777230, inode 38690241): 6 files, no impossibilities.
+# . (device 16777231, inode 421888): 10 files, no impossibilities.
 
-# 6 files, no impossibilities in 1 directories.
+# 10 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -289,6 +286,6 @@ GNUmakefile:
 # strcache size: total = 0 / max = 0 / min = 4096 / avg = 0
 # strcache free: total = 0 / max = 0 / min = 4096 / avg = 0
 
-# Finished Make data base on Tue May 24 23:58:59 2022
+# Finished Make data base on Sat Jun 11 17:48:19 2022
 
  

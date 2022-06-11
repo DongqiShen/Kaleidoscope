@@ -76,7 +76,7 @@ static int gettok() { // static修饰的函数表示只能在这个cpp文件中�
         return tok_eof;
     }
     // Otherwise, just return the character as its ascii value.
-    // 如果碰到无法识别的字符，那么返回这个字符的asc码
+    // 如果是操作符，e.g.‘+’，则返回操作符，并且静态的字符变量为下一个字符
     int ThisChar = LastChar;
     LastChar = getchar();
     return ThisChar;
@@ -86,12 +86,15 @@ static int gettok() { // static修饰的函数表示只能在这个cpp文件中�
 //===----------------------------------------------------------------------===//
 // Abstract Syntax Tree (aka Parse Tree)
 //===----------------------------------------------------------------------===//
+
+// parser用到的算法为 1.递归下降语法分析 2.算符优先分析法（用于二元运算符）
+// parser的输出为抽象语法数(AST)
 namespace {
 /// ExprAST - Base class for all expression nodes.
 class ExprAST {
 public:
-    virtual ~ExprAST() = default;
-};
+    virtual ~ExprAST() = default; // 定义虚函数是为了允许基类的指针调用子类的这个函数
+};                                // = default 显示声明为默认的析构函数
 
 /// NumberExprAST - Expression class for numeric literals like "1.0".
 class NumberExprAST: public ExprAST {
@@ -202,7 +205,8 @@ unique_ptr<PrototypeAST> LogErrorP(const char *str)
 static unique_ptr<ExprAST> ParseExpression();
 
 /// numberexpr ::= number
-static unique_ptr<ExprAST> ParseNumberExpr() {
+static unique_ptr<ExprAST> ParseNumberExpr()
+{
     auto result = make_unique<NumberExprAST>(NumVal);
     getNextToken(); // consume the number
     return move(result);
