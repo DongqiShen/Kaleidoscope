@@ -29,7 +29,7 @@ static string IdentifierStr; // Filled in if tok_identifier
 static double NumVal;        // Filled in if tok_number
 
 /// gettok - Return the next token from standard input.
-static int gettok() {
+static int gettok() { // static修饰的函数表示只能在这个cpp文件中调用
     static int LastChar = ' ';
     // Skip any whitespace, LastChar是第一个不为空格的字符
     while (isspace(LastChar)) { 
