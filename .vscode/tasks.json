@@ -10,10 +10,11 @@
 				"-stdlib=libc++",
 				"-g",
 				"${fileDirname}/*.cpp",
-				//"${file}",
+				"-L/opt/homebrew/opt/llvm/lib",
+				"-I/opt/homebrew/opt/llvm/include",
+				"-lLLVM-12",
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}",
-				"--include-directory=/Users/dongqishen/Library/External Header",
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"

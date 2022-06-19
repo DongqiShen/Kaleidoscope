@@ -1,2 +1,5 @@
 main.dSYM/
 main
+.vscode/configurationCache.log
+.vscode/dryrun.log
+.vscode/targets.log

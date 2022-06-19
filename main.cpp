@@ -7,7 +7,19 @@
 #include <utility>
 #include <vector>
 
+#include "llvm/ADT/APFloat.h"
+#include "llvm/ADT/STLExtras.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Type.h"
+#include "llvm/IR/Verifier.h"
+
 using namespace std;
+using namespace llvm;
 
 //===----------------------------------------------------------------------===//
 // Lexer
@@ -94,7 +106,9 @@ namespace {
 class ExprAST {
 public:
     virtual ~ExprAST() = default; // 定义虚函数是为了允许基类的指针调用子类的这个函数
-};                                // = default 显示声明为默认的析构函数
+                                  // = default 显示声明为默认的析构函数
+    virtual Value *codegen() = 0; // 用来生成IR, Value 是 LLVM中的一个类，用来表示 SSA
+};
 
 /// NumberExprAST - Expression class for numeric literals like "1.0".
 class NumberExprAST: public ExprAST {
@@ -102,6 +116,7 @@ private:
     double val;
 public:
     NumberExprAST(double val): val(val) {}
+    Value* codegen() override;
 };
 
 /// VariableExprAST - Expression class for referencing a variable, like "a".
@@ -110,6 +125,7 @@ private:
     string name;
 public:
     VariableExprAST(const string &name): name(name) {}
+    Value* codegen() override;
 };
 
 /// BinaryExprAST - Expression class for a binary operator.
@@ -120,6 +136,7 @@ private:
 public:
     BinaryExprAST(char op, unique_ptr<ExprAST> lhs, unique_ptr<ExprAST> rhs):
         op(op), lhs(move(lhs)), rhs(move(rhs)) {}
+    Value* codegen() override;
 };
 
 /// CallExprAST - Expression class for function calls.
@@ -130,6 +147,7 @@ private:
 public:
     CallExprAST(const string &callee, vector<unique_ptr<ExprAST> > args):
         callee(callee), args(move(args)) {}
+    Value* codegen() override;
 };
 
 /// PrototypeAST - This class represents the "prototype" for a function,
@@ -145,6 +163,7 @@ public:
     const string &getName() const {
         return name;
     }
+    Function* codegen();
 };
 
 /// FunctionAST - This class represents a function definition itself.
@@ -155,6 +174,7 @@ private:
 public:
     FunctionAST(unique_ptr<PrototypeAST> proto, unique_ptr<ExprAST> body):
         proto(move(proto)), body(move(body)) {}
+    Function* codegen();
 };
  
 } // end anonymous namespace
@@ -387,6 +407,130 @@ static std::unique_ptr<FunctionAST> ParseTopLevelExpr()
 static std::unique_ptr<PrototypeAST> ParseExtern() {
     getNextToken(); // eat extern.
     return ParsePrototype();
+}
+
+
+//===----------------------------------------------------------------------===//
+// Code Generation
+//===----------------------------------------------------------------------===//
+static LLVMContext TheContext; // 包含了很多llvm核心的数据结构
+static IRBuilder<> Builder(TheContext); // the Builder object is a helper object that makes it easy to generate LLVM instructions.
+static std::unique_ptr<Module> TheModule; // an LLVM construct that contains functions and global variables.
+                                          // 最高等级的结构体用来包含llvm ir的代码，包含了ir的内存块，因此codegen方法返回了*Value 而不是 unique_ptr<Value>
+static std::map<std::string, Value*> NamedValues; // 代码的符号表, 实际上只包含了函数的参数
+
+Value* LogErrorV(const char* Str)
+{
+    LogError(Str);
+    return nullptr;
+}
+
+// 在llvm ir中数字常数用类ConstantFP来表示
+Value* NumberExprAST::codegen() {
+    return ConstantFP::get(TheContext, APFloat(val));
+}
+
+Value* VariableExprAST::codegen() {
+    // Look this variable up in the function.
+    Value* v = NamedValues[name];
+    if (!v) {
+        LogErrorV("Unknown variable name");
+    }
+    return v;
+}
+
+Value* BinaryExprAST::codegen() {
+    Value* l = lhs->codegen();
+    Value* r = rhs->codegen();
+    if (!l || !r) {
+        return nullptr;
+    }
+    switch (op) {
+        case '+':
+            return Builder.CreateFAdd(l, r, "addtmp");
+        case '-':
+            return Builder.CreateFSub(l, r, "subtmp");
+        case '*':
+            return Builder.CreateFMul(l, r, "multmp");
+        case '<':
+            l = Builder.CreateFCmpULT(l, r, "cmptmp");
+            // Convert bool 0/1 to double 0.0 or 1.0
+            return Builder.CreateUIToFP(r, Type::getDoubleTy(TheContext), "booltmp");
+        default:
+            return LogErrorV("invalid binary operator");
+    }
+}
+
+Value* CallExprAST::codegen() {
+    // Look up the name in the global module table.
+    Function* calleeF = TheModule->getFunction(callee);
+    if (!calleeF) {
+        return LogErrorV("Unknown function referenced");
+    }
+    // if argument mismatch error.
+    if (calleeF->arg_size() != args.size()) {
+        return LogErrorV("Incorrect # arguments passed");
+    }
+
+    vector<Value*> argsV;
+    for (unsigned i = 0, e = args.size(); i != e; i++) {
+        argsV.push_back(args[i]->codegen());
+        if (!argsV.back()) {
+            return nullptr;
+        }
+    }
+    return Builder.CreateCall(calleeF, argsV, "calltmp");
+}
+
+Function* PrototypeAST::codegen() {
+    // Make the function type: double(double, double ect);
+    vector<Type*> Doubles(args.size(), Type::getDoubleTy(TheContext));
+    // 创建一个函数类型，包含了 'N'个 lllvm double参数，以及返回一个double作为结果
+    FunctionType* FT = FunctionType::get(Type::getDoubleTy(TheContext), Doubles, false);
+    // 创建一个ir函数
+    Function* F = Function::Create(FT, Function::ExternalLinkage, name, TheModule.get());
+    // set names for all arguments
+    unsigned Idx = 0;
+    for (auto& Arg: F->args()) {
+        Arg.setName(args[Idx++]);
+    }
+    return F;
+}
+
+Function* FunctionAST::codegen() {
+    // First, check for an existing function from a previous 'extern' declaration
+    Function* TheFunction = TheModule->getFunction(proto->getName());
+
+    if (!TheFunction) {
+        TheFunction = proto->codegen();
+    }
+    if (!TheFunction) {
+        return nullptr;
+    }
+    if (!TheFunction->empty()) {
+        return (Function*) LogErrorV("Function cannot be redefuned.");
+    }
+
+    // Basic block 在llvm中是函数的重要的一部分，定义了控制流图
+    // Create a new basic block to start insertion into.
+    BasicBlock* BB = BasicBlock::Create(TheContext, "entry", TheFunction);
+    Builder.SetInsertPoint(BB);
+    // Record the function arguments in the NamedValues map.
+    NamedValues.clear();
+    for (auto& Arg: TheFunction->args()) {
+        NamedValues[string(Arg.getName())] = &Arg;
+    }
+
+    if (Value* RetVal = body->codegen()) {
+        // Finish off the function.
+        Builder.CreateRet(RetVal);
+        // Validate the generated code, checking for consistency.
+        verifyFunction(*TheFunction);
+        return TheFunction;
+    }
+    // Error reading body, remove function.
+    TheFunction->eraseFromParent();
+    return nullptr;
 }
 
 //===----------------------------------------------------------------------===//
